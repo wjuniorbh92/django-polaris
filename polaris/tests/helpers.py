@@ -3,9 +3,10 @@ import json
 import time
 from unittest.mock import Mock
 
-from polaris import settings
 from stellar_sdk.keypair import Keypair
 from stellar_sdk.transaction_envelope import TransactionEnvelope
+
+from polaris import settings
 
 TEST_MUXED_ACCOUNT = (
     "MDOP36XYBRBRAFHGRP7VPH335XVEQLSCF2UA7PT34TTZOXFMIGJJWAAAAAAAAAAAPMYT4"
@@ -85,11 +86,13 @@ def sep10(client, address, seed):
     response = client.post(
         "/auth",
         data={"transaction": client_signed_envelope_xdr},
-        headers={"Content-Type": "application/json"},
+        content_type="application/json"
     )
     content = json.loads(response.content)
-    encoded_jwt = content["token"]
-    assert encoded_jwt
+    encoded_jwt = content.get("token")
+    if not encoded_jwt:
+        print("Token not found in response. Full response:", content)
+        raise ValueError("Token not found in response")
     return encoded_jwt
 
 
